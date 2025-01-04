@@ -2,6 +2,8 @@
 
 package com.justvinny.github.noadsepubreader
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -14,8 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import com.justvinny.github.noadsepubreader.cachedsettings.CachedSettingsRepository
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
+import com.justvinny.github.noadsepubreader.viewbook.ViewBookScreen
+import com.justvinny.github.noadsepubreader.viewbook.ViewBookViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.readium.adapter.pdfium.document.PdfiumDocumentFactory
@@ -37,44 +43,75 @@ const val EPUB_MIME_TYPE = "application/epub+zip"
 const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
-    private lateinit var epubLauncher: ActivityResultLauncher<String>
+    private lateinit var epubLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var assetRetriever: AssetRetriever
+    private lateinit var publicationOpener: PublicationOpener
+    private lateinit var cachedSettingsRepository: CachedSettingsRepository
+
     private val viewBookViewModel = ViewBookViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         epubLauncher = getEpubContent()
+        cachedSettingsRepository = CachedSettingsRepository(applicationContext)
+
+        val httpClient = DefaultHttpClient()
+        assetRetriever = AssetRetriever(
+            contentResolver = applicationContext.contentResolver,
+            httpClient = httpClient,
+        )
+        publicationOpener = PublicationOpener(
+            publicationParser = DefaultPublicationParser(
+                applicationContext,
+                httpClient = httpClient,
+                assetRetriever = assetRetriever,
+                pdfFactory = PdfiumDocumentFactory(applicationContext)
+            )
+        )
+
+        lifecycleScope.launch {
+            val uri = cachedSettingsRepository.cachedSettings.first().bookFileUri
+
+            if (!uri.isNullOrEmpty()) {
+                openEpub(uri)
+            }
+        }
 
         setContent {
             NoAdsEpubReaderTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ViewBookScreen(
                         importEpub = ::importEpub,
-                        modifier = Modifier.padding(innerPadding),
                         viewModel = viewBookViewModel,
+                        modifier = Modifier.padding(innerPadding),
                     )
                 }
             }
         }
     }
 
-    private fun getEpubContent() = registerForActivityResult(ActivityResultContracts.GetContent()) {
+    private fun getEpubContent() = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
         if (it != null && it.path != null) {
-            val httpClient = DefaultHttpClient()
-            val assetRetriever = AssetRetriever(
-                contentResolver = applicationContext.contentResolver,
-                httpClient = httpClient,
-            )
-            val publicationOpener = PublicationOpener(
-                publicationParser = DefaultPublicationParser(
-                    applicationContext,
-                    httpClient = httpClient,
-                    assetRetriever = assetRetriever,
-                    pdfFactory = PdfiumDocumentFactory(applicationContext)
-                )
-            )
+            lifecycleScope.launch {
+                contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                cachedSettingsRepository.updateBookFileUri(it.toString())
+                openEpub(it.toString())
+            }
+        }
+    }
 
-            val fileDescriptor = contentResolver.openFileDescriptor(it, "r") ?: return@registerForActivityResult
+    private fun importEpub() {
+        if (::epubLauncher.isInitialized) {
+            epubLauncher.launch(arrayOf(EPUB_MIME_TYPE))
+        }
+    }
+
+    private suspend fun openEpub(uriString: String) {
+        viewBookViewModel.setLoading(true)
+
+        withContext(Dispatchers.IO) {
+            val fileDescriptor = contentResolver.openFileDescriptor(Uri.parse(uriString), "r") ?: return@withContext
             val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
             val tempFile = File.createTempFile("temp_epub", ".epub", cacheDir)
             tempFile.outputStream().use { outputStream ->
@@ -82,48 +119,38 @@ class MainActivity : ComponentActivity() {
             }
             val url = tempFile.toUrl()
 
-            lifecycleScope.launch {
-                viewBookViewModel.setLoading(true)
+            val asset = assetRetriever.retrieve(url).getOrElse { exception ->
+                Log.e(TAG, "getEpubContent assetRetriever message: ${exception.message} | cause: ${exception.cause}")
+            } as? Asset ?: return@withContext
 
-                withContext(Dispatchers.IO) {
-                    val asset = assetRetriever.retrieve(url).getOrElse { exception ->
-                        Log.e(TAG, "getEpubContent assetRetriever message: ${exception.message} | cause: ${exception.cause}")
-                    } as? Asset ?: return@withContext
+            val publication = publicationOpener.open(asset, allowUserInteraction = true).getOrElse { exception ->
+                Log.e(TAG, "getEpubContent publicationOpener message: ${exception.message} | cause: ${exception.cause}")
+            } as? Publication ?: return@withContext
 
-                    val publication = publicationOpener.open(asset, allowUserInteraction = true).getOrElse { exception ->
-                        Log.e(TAG, "getEpubContent publicationOpener message: ${exception.message} | cause: ${exception.cause}")
-                    } as? Publication ?: return@withContext
+            val content = publication.content() ?: return@withContext
+            val textualElements = content
+                .elements()
+                .filterIsInstance<Content.TextualElement>()
 
-                    val content = publication.content() ?: return@withContext
-                    val textualElements = content
-                        .elements()
-                        .filterIsInstance<Content.TextualElement>()
-
-                    Log.i(TAG, "getEpubContent length: ${textualElements.count()}")
-                    for (element in textualElements) {
-                        Log.i(TAG, "getEpubContent element title: ${element.text}")
-                    }
-
-                    val wholeText = textualElements
-                        .mapNotNull { element -> element.text }
-                        .joinToString(separator = "\n\n")
-
-                    viewBookViewModel.updateContent(wholeText)
-
-                    for (link in publication.tableOfContents) {
-                        Log.i(TAG, "getEpubContent table of contents: $link")
-                    }
-                }
-
-                viewBookViewModel.setLoading(false)
+            Log.i(TAG, "getEpubContent length: ${textualElements.count()}")
+            for (element in textualElements) {
+                Log.i(TAG, "getEpubContent element title: ${element.text}")
             }
-        }
-    }
 
-    private fun importEpub() {
-        if (::epubLauncher.isInitialized) {
-            epubLauncher.launch(EPUB_MIME_TYPE)
+            val wholeText = textualElements
+                .mapNotNull { element -> element.text }
+                .joinToString(separator = "\n\n")
+
+            viewBookViewModel.updateContent(wholeText)
+
+            for (link in publication.tableOfContents) {
+                Log.i(TAG, "getEpubContent table of contents: $link")
+            }
+
+            tempFile.deleteOnExit()
         }
+
+        viewBookViewModel.setLoading(false)
     }
 }
 

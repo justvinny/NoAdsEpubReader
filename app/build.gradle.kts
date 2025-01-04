@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.protobuf)
 }
 
 android {
@@ -66,4 +67,28 @@ dependencies {
     implementation(libs.readium.streamer)
     implementation(libs.readium.adapter.pdfium)
 
+    // DataStore
+    implementation(libs.protobuf.javalite)
+    implementation(libs.androidx.datastore)
+
+}
+
+protobuf {
+    protoc {
+        val dependency = libs.protobuf.protoc.get()
+        val protobuf =
+            "${dependency.module.group}:${dependency.module.name}:${dependency.versionConstraint.requiredVersion}"
+        val suffix = if (osdetector.os == "osx") ":osx-x86_64" else ""
+        artifact = protobuf + suffix
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.plugins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
 }

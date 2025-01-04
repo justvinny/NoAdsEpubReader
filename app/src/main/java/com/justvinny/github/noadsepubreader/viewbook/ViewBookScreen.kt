@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader
+package com.justvinny.github.noadsepubreader.viewbook
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,19 +11,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.justvinny.github.noadsepubreader.LoadingScreen
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
 
 @Composable
 fun ViewBookScreen(
     importEpub: () -> Unit,
+    viewModel: ViewBookViewModel,
     modifier: Modifier = Modifier,
-    viewModel: ViewBookViewModel = ViewBookViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
     ViewBookScreen(
         isLoading = state.isLoading,
-        text = state.text,
+        text = state.bookText,
         importEpub = importEpub,
         modifier = modifier,
     )
