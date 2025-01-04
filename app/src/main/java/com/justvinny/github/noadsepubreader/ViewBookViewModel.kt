@@ -14,4 +14,10 @@ class ViewBookViewModel: ViewModel() {
             it.copy(text = content)
         }
     }
+
+    fun setLoading(isLoading: Boolean) {
+        _state.update {
+            it.copy(isLoading = isLoading)
+        }
+    }
 }

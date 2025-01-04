@@ -83,28 +83,39 @@ class MainActivity : ComponentActivity() {
             val url = tempFile.toUrl()
 
             lifecycleScope.launch {
+                viewBookViewModel.setLoading(true)
+
                 withContext(Dispatchers.IO) {
                     val asset = assetRetriever.retrieve(url).getOrElse { exception ->
                         Log.e(TAG, "getEpubContent assetRetriever message: ${exception.message} | cause: ${exception.cause}")
+                    } as? Asset ?: return@withContext
+
+                    val publication = publicationOpener.open(asset, allowUserInteraction = true).getOrElse { exception ->
+                        Log.e(TAG, "getEpubContent publicationOpener message: ${exception.message} | cause: ${exception.cause}")
+                    } as? Publication ?: return@withContext
+
+                    val content = publication.content() ?: return@withContext
+                    val textualElements = content
+                        .elements()
+                        .filterIsInstance<Content.TextualElement>()
+
+                    Log.i(TAG, "getEpubContent length: ${textualElements.count()}")
+                    for (element in textualElements) {
+                        Log.i(TAG, "getEpubContent element title: ${element.text}")
                     }
 
-                    if (asset is Asset) {
-                        val publication = publicationOpener.open(asset, allowUserInteraction = true).getOrElse { exception ->
-                            Log.e(TAG, "getEpubContent publicationOpener message: ${exception.message} | cause: ${exception.cause}")
-                        }
+                    val wholeText = textualElements
+                        .mapNotNull { element -> element.text }
+                        .joinToString(separator = "\n\n")
 
-                        if (publication is Publication) {
-                            val content = publication.content() ?: return@withContext
-                            val wholeText = content
-                                .elements()
-                                .filterIsInstance<Content.TextualElement>()
-                                .mapNotNull { element -> element.text }
-                                .joinToString(separator = "\n\n")
+                    viewBookViewModel.updateContent(wholeText)
 
-                            viewBookViewModel.updateContent(wholeText)
-                        }
+                    for (link in publication.tableOfContents) {
+                        Log.i(TAG, "getEpubContent table of contents: $link")
                     }
                 }
+
+                viewBookViewModel.setLoading(false)
             }
         }
     }

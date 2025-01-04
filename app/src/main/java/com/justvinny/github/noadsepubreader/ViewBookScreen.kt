@@ -21,11 +21,42 @@ fun ViewBookScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
-        Button(onClick = importEpub) {
-            Text("Open Book")
+    ViewBookScreen(
+        isLoading = state.isLoading,
+        text = state.text,
+        importEpub = importEpub,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun ViewBookScreen(
+    isLoading: Boolean,
+    text: String,
+    importEpub: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (isLoading) {
+        LoadingScreen()
+    } else{
+        Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+            Button(onClick = importEpub) {
+                Text("Open Book")
+            }
+            Text(text)
         }
-        Text(state.text)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ViewBookScreenLoadingPreview() {
+    NoAdsEpubReaderTheme {
+        ViewBookScreen(
+            isLoading = true,
+            text = "",
+            importEpub = {},
+        )
     }
 }
 
@@ -33,6 +64,11 @@ fun ViewBookScreen(
 @Composable
 fun ViewBookScreenPreview() {
     NoAdsEpubReaderTheme {
-        ViewBookScreen(importEpub = {}, modifier = Modifier.fillMaxSize())
+        ViewBookScreen(
+            isLoading = false,
+            text = "Some text",
+            importEpub = {},
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
