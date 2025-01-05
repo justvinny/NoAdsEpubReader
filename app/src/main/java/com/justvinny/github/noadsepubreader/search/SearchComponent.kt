@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
@@ -74,6 +75,18 @@ fun SearchComponent(
                 imageVector = Icons.Filled.KeyboardArrowDown,
                 contentDescription = stringResource(R.string.down_arrow_button_desc),
                 tint = enableDownButton.getArrowButtonColor(),
+            )
+        }
+
+        val enableClearButton = searchKeyword.isNotBlank()
+        IconButton(
+            onClick = { onSearchValueChanged("") },
+            enabled = enableClearButton,
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Clear,
+                contentDescription = stringResource(R.string.clear_button_desc),
+                tint = enableClearButton.getArrowButtonColor(),
             )
         }
     }

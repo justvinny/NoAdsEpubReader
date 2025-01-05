@@ -13,6 +13,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.justvinny.github.noadsepubreader.R
 import com.justvinny.github.noadsepubreader.search.SearchComponent
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
 import com.justvinny.github.noadsepubreader.utils.ComponentPreviews
@@ -55,7 +57,7 @@ private fun BottomBarContent(
             IconButton(onClick = importEpub) {
                 Icon(
                     imageVector = Icons.Filled.FileOpen,
-                    contentDescription = "",
+                    contentDescription = stringResource(R.string.open_epub_label_desc),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
