@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">No Ads Epub Reader</string>
+
+    <!-- Search Component -->
+    <string name="search_label">Search</string>
+    <string name="up_arrow_button_desc">Up arrow button to navigate matching search results upwards</string>
+    <string name="down_arrow_button_desc">Down arrow button to navigate matching search results downwards</string>
 </resources>
