@@ -71,10 +71,16 @@ class MainActivity : ComponentActivity() {
         )
 
         lifecycleScope.launch {
-            val uri = cachedSettingsRepository.cachedSettings.first().bookFileUri
+            val cachedSettings = cachedSettingsRepository.cachedSettings.first()
 
+            val uri = cachedSettings.bookFileUri
             if (!uri.isNullOrEmpty()) {
                 openEpub(uri)
+            }
+
+            val lastScrollIndex = cachedSettings.lastScrollIndex
+            if (lastScrollIndex > 0) {
+                viewBookViewModel.updateScrollPosition(lastScrollIndex)
             }
         }
 
@@ -87,6 +93,17 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        if (::cachedSettingsRepository.isInitialized) {
+            lifecycleScope.launch {
+                val lastScrollIndex = viewBookViewModel.state.first().lazyListState.firstVisibleItemIndex
+                cachedSettingsRepository.updateLastScrollIndex(lastScrollIndex)
             }
         }
     }

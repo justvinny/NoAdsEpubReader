@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material3.Icon
@@ -60,6 +60,7 @@ fun ViewBookScreen(
             }
 
             ViewBookComponent(
+                listState = state.lazyListState,
                 matchedResultIndex = state.matchedResultIndex,
                 matchedResultsIndices = state.matchedResultsIndices,
                 contents = state.contents,
@@ -70,12 +71,11 @@ fun ViewBookScreen(
 
 @Composable
 private fun ViewBookComponent(
+    listState: LazyListState,
     matchedResultIndex: Int,
     matchedResultsIndices: List<Int>,
     contents: List<String>,
 ) {
-    val listState = rememberLazyListState()
-
     LaunchedEffect(matchedResultIndex, matchedResultsIndices) {
         if (matchedResultsIndices.isNotEmpty()) {
             listState.animateScrollToItem(matchedResultsIndices[matchedResultIndex])
@@ -97,6 +97,7 @@ private fun ViewBookComponent(
 fun ViewBookScreenLoadingPreview() {
     NoAdsEpubReaderTheme {
         ViewBookComponent(
+            listState = LazyListState(),
             matchedResultIndex = 0,
             matchedResultsIndices = listOf(),
             contents = listOf(),
@@ -109,6 +110,7 @@ fun ViewBookScreenLoadingPreview() {
 fun ViewBookScreenPreview() {
     NoAdsEpubReaderTheme {
         ViewBookComponent(
+            listState = LazyListState(),
             matchedResultIndex = 0,
             matchedResultsIndices = listOf(),
             contents = listOf("Some text.", "Second line", "gskjlgnsdkvnksn mf alcmlc"),

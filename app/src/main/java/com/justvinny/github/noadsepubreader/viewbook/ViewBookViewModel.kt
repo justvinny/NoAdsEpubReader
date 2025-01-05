@@ -1,5 +1,6 @@
 package com.justvinny.github.noadsepubreader.viewbook
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,6 +66,12 @@ class ViewBookViewModel: ViewModel() {
             } else{
                 it
             }
+        }
+    }
+
+    fun updateScrollPosition(scrollPosition: Int) {
+        _state.update {
+            it.copy(lazyListState = LazyListState(scrollPosition))
         }
     }
 }

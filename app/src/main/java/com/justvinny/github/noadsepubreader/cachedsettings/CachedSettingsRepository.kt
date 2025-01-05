@@ -16,4 +16,12 @@ class CachedSettingsRepository(
                 .build()
         }
     }
+
+    suspend fun updateLastScrollIndex(lastScrollIndex: Int) {
+        context.cachedSettingsDataStore.updateData {
+            it.toBuilder()
+                .setLastScrollIndex(lastScrollIndex)
+                .build()
+        }
+    }
 }
