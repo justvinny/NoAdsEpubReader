@@ -19,6 +19,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.justvinny.github.noadsepubreader.LoadingScreen
 import com.justvinny.github.noadsepubreader.search.SearchComponent
@@ -61,6 +63,7 @@ fun ViewBookScreen(
 
             ViewBookComponent(
                 listState = state.lazyListState,
+                searchTerm = state.searchTerm,
                 matchedResultIndex = state.matchedResultIndex,
                 matchedResultsIndices = state.matchedResultsIndices,
                 contents = state.contents,
@@ -72,10 +75,13 @@ fun ViewBookScreen(
 @Composable
 private fun ViewBookComponent(
     listState: LazyListState,
+    searchTerm: String,
     matchedResultIndex: Int,
     matchedResultsIndices: List<Int>,
     contents: List<String>,
 ) {
+    val textModifier = Modifier.padding(bottom = 12.dp)
+
     LaunchedEffect(matchedResultIndex, matchedResultsIndices) {
         if (matchedResultsIndices.isNotEmpty()) {
             listState.animateScrollToItem(matchedResultsIndices[matchedResultIndex])
@@ -86,8 +92,31 @@ private fun ViewBookComponent(
         itemsIndexed(
             items = contents,
             key = { index, line -> "$index-$line".hashCode() }
-        ) { _, line ->
-            Text(modifier = Modifier.padding(bottom = 12.dp), text = line)
+        ) { index, line ->
+            if (index in matchedResultsIndices) {
+                val regex = searchTerm.toRegex(RegexOption.IGNORE_CASE)
+                val allMatches = regex.findAll(line)
+
+                Text(
+                    modifier = textModifier,
+                    text = buildAnnotatedString {
+                        append(line)
+
+                        for (matched in allMatches) {
+                            addStyle(
+                                style = SpanStyle(
+                                    background = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                ),
+                                start = matched.range.first,
+                                end = matched.range.last + 1,
+                            )
+                        }
+                    }
+                )
+            } else {
+                Text(modifier = textModifier, text = line)
+            }
         }
     }
 }
@@ -98,6 +127,7 @@ fun ViewBookScreenLoadingPreview() {
     NoAdsEpubReaderTheme {
         ViewBookComponent(
             listState = LazyListState(),
+            searchTerm = "",
             matchedResultIndex = 0,
             matchedResultsIndices = listOf(),
             contents = listOf(),
@@ -111,6 +141,7 @@ fun ViewBookScreenPreview() {
     NoAdsEpubReaderTheme {
         ViewBookComponent(
             listState = LazyListState(),
+            searchTerm = "",
             matchedResultIndex = 0,
             matchedResultsIndices = listOf(),
             contents = listOf("Some text.", "Second line", "gskjlgnsdkvnksn mf alcmlc"),

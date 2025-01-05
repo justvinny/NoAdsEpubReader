@@ -4,6 +4,7 @@ import android.os.CountDownTimer
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.justvinny.github.noadsepubreader.Constants
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -14,11 +15,14 @@ class ViewBookViewModel: ViewModel() {
     val state = _state
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(Constants.DEFAULT_FLOW_SUBSCRIPTION_TIMEOUT),
             initialValue = ViewBookState(),
         )
 
-    private val timer = object : CountDownTimer(500, 100) {
+    private val timer = object : CountDownTimer(
+        Constants.DEFAULT_TIMER_MAX_MS,
+        Constants.DEFAULT_TIMER_INTERVAL_MS,
+    ) {
         override fun onTick(millisUntilFinished: Long) {}
 
         override fun onFinish() {
