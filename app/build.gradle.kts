@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.protobuf.javalite)
     implementation(libs.androidx.datastore)
 
+    // Material Icon Extended
+    implementation(libs.androidx.material.icons.extended)
 }
 
 protobuf {
