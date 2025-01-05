@@ -11,11 +11,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import com.justvinny.github.noadsepubreader.bottombar.BottomBar
 import com.justvinny.github.noadsepubreader.cachedsettings.CachedSettingsRepository
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
 import com.justvinny.github.noadsepubreader.viewbook.ViewBookScreen
@@ -86,12 +95,29 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             NoAdsEpubReaderTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ViewBookScreen(
-                        importEpub = ::importEpub,
-                        viewModel = viewBookViewModel,
-                        modifier = Modifier.padding(innerPadding),
-                    )
+                var showAppBar by rememberSaveable { mutableStateOf(true) }
+
+                Surface(
+                    modifier = Modifier.clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        showAppBar = !showAppBar
+                    }
+                ) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        bottomBar = { BottomBar(
+                            importEpub = ::importEpub,
+                            showAppBar = showAppBar,
+                            viewBookViewModel = viewBookViewModel,
+                        )},
+                    ) { innerPadding ->
+                        ViewBookScreen(
+                            viewModel = viewBookViewModel,
+                            modifier = Modifier.padding(innerPadding),
+                        )
+                    }
                 }
             }
         }
