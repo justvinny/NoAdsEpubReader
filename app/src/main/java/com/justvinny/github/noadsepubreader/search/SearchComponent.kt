@@ -82,9 +82,10 @@ fun SearchComponent(
 @ReadOnlyComposable
 @Composable
 private fun String.getTextFieldSuffix(matchedResultIndex: Int, matchedResultsIndicesSize: Int): String {
-    return when (this.isNotBlank()) {
-        true -> "${matchedResultIndex + 1} / $matchedResultsIndicesSize"
-        false -> ""
+    return when {
+        this.isNotBlank() && matchedResultsIndicesSize == 0 -> "0 / 0"
+        matchedResultsIndicesSize > 0 -> "${matchedResultIndex + 1} / $matchedResultsIndicesSize"
+        else -> ""
     }
 }
 

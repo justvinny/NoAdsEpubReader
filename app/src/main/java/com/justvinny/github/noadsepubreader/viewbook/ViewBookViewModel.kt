@@ -1,5 +1,6 @@
 package com.justvinny.github.noadsepubreader.viewbook
 
+import android.os.CountDownTimer
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,14 @@ class ViewBookViewModel: ViewModel() {
             initialValue = ViewBookState(),
         )
 
+    private val timer = object : CountDownTimer(500, 100) {
+        override fun onTick(millisUntilFinished: Long) {}
+
+        override fun onFinish() {
+            updateSearchResults()
+        }
+    }
+
     fun updateContents(contents: List<String>) {
         _state.update {
             it.copy(contents = contents)
@@ -31,22 +40,11 @@ class ViewBookViewModel: ViewModel() {
 
     fun search(searchTerm: String) {
         _state.update {
-            val matchedResultsIndices = mutableListOf<Int>()
-
-            if (searchTerm.isNotBlank()) {
-                for ((index, line) in it.contents.withIndex()) {
-                    if (line.contains(searchTerm, ignoreCase = true)) {
-                        matchedResultsIndices.add(index)
-                    }
-                }
-            }
-
-            it.copy(
-                searchTerm = searchTerm,
-                matchedResultIndex = 0,
-                matchedResultsIndices = matchedResultsIndices,
-            )
+            it.copy(searchTerm = searchTerm)
         }
+
+        timer.cancel()
+        timer.start()
     }
 
     fun arrowUp() {
@@ -72,6 +70,25 @@ class ViewBookViewModel: ViewModel() {
     fun updateScrollPosition(scrollPosition: Int) {
         _state.update {
             it.copy(lazyListState = LazyListState(scrollPosition))
+        }
+    }
+
+    private fun updateSearchResults() {
+        _state.update {
+            val matchedResultsIndices = mutableListOf<Int>()
+
+            if (it.searchTerm.isNotBlank()) {
+                for ((index, line) in it.contents.withIndex()) {
+                    if (line.contains(it.searchTerm, ignoreCase = true)) {
+                        matchedResultsIndices.add(index)
+                    }
+                }
+            }
+
+            it.copy(
+                matchedResultIndex = 0,
+                matchedResultsIndices = matchedResultsIndices,
+            )
         }
     }
 }
