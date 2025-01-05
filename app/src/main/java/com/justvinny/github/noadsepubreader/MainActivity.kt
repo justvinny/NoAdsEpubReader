@@ -131,17 +131,9 @@ class MainActivity : ComponentActivity() {
             val textualElements = content
                 .elements()
                 .filterIsInstance<Content.TextualElement>()
+                .mapNotNull { it.text }
 
-            Log.i(TAG, "getEpubContent length: ${textualElements.count()}")
-            for (element in textualElements) {
-                Log.i(TAG, "getEpubContent element title: ${element.text}")
-            }
-
-            val wholeText = textualElements
-                .mapNotNull { element -> element.text }
-                .joinToString(separator = "\n\n")
-
-            viewBookViewModel.updateContent(wholeText)
+            viewBookViewModel.updateContents(textualElements)
 
             for (link in publication.tableOfContents) {
                 Log.i(TAG, "getEpubContent table of contents: $link")
@@ -153,4 +145,3 @@ class MainActivity : ComponentActivity() {
         viewBookViewModel.setLoading(false)
     }
 }
-

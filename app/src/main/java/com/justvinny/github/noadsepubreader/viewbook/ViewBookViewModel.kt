@@ -16,15 +16,55 @@ class ViewBookViewModel: ViewModel() {
             initialValue = ViewBookState(),
         )
 
-    fun updateContent(bookText: String) {
+    fun updateContents(contents: List<String>) {
         _state.update {
-            it.copy(bookText = bookText)
+            it.copy(contents = contents)
         }
     }
 
     fun setLoading(isLoading: Boolean) {
         _state.update {
             it.copy(isLoading = isLoading)
+        }
+    }
+
+    fun search(searchTerm: String) {
+        _state.update {
+            val matchedResultsIndices = mutableListOf<Int>()
+
+            if (searchTerm.isNotBlank()) {
+                for ((index, line) in it.contents.withIndex()) {
+                    if (line.contains(searchTerm, ignoreCase = true)) {
+                        matchedResultsIndices.add(index)
+                    }
+                }
+            }
+
+            it.copy(
+                searchTerm = searchTerm,
+                matchedResultIndex = 0,
+                matchedResultsIndices = matchedResultsIndices,
+            )
+        }
+    }
+
+    fun arrowUp() {
+        _state.update {
+            if (it.matchedResultsIndices.isNotEmpty()) {
+                it.copy(matchedResultIndex = (it.matchedResultIndex - 1).mod(it.matchedResultsIndices.size))
+            } else{
+                it
+            }
+        }
+    }
+
+    fun arrowDown() {
+        _state.update {
+            if (it.matchedResultsIndices.isNotEmpty()) {
+                it.copy(matchedResultIndex = (it.matchedResultIndex + 1).mod(it.matchedResultsIndices.size))
+            } else{
+                it
+            }
         }
     }
 }
