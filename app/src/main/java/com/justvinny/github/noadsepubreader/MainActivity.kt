@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import androidx.lifecycle.lifecycleScope
 import com.justvinny.github.noadsepubreader.bottombar.BottomBar
 import com.justvinny.github.noadsepubreader.cachedsettings.CachedSettingsRepository
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
+import com.justvinny.github.noadsepubreader.viewbook.EmptyViewBookScreen
 import com.justvinny.github.noadsepubreader.viewbook.ViewBookScreen
 import com.justvinny.github.noadsepubreader.viewbook.ViewBookViewModel
 import kotlinx.coroutines.Dispatchers
@@ -94,30 +96,39 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            NoAdsEpubReaderTheme {
-                var showAppBar by rememberSaveable { mutableStateOf(true) }
+            val viewBookState by viewBookViewModel.state.collectAsState()
+            val hasBookToShow = viewBookState.contents.isNotEmpty()
+            var showAppBar by rememberSaveable { mutableStateOf(true) }
 
-                Surface(
-                    modifier = Modifier.clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
+            NoAdsEpubReaderTheme {
+                if (viewBookState.isLoading) {
+                    LoadingScreen()
+                } else if (hasBookToShow) {
+                    Surface(
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                        ) {
+                            showAppBar = !showAppBar
+                        }
                     ) {
-                        showAppBar = !showAppBar
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            bottomBar = { BottomBar(
+                                importEpub = ::importEpub,
+                                showAppBar = showAppBar,
+                                viewBookViewModel = viewBookViewModel,
+                            )
+                            },
+                        ) { innerPadding ->
+                            ViewBookScreen(
+                                viewModel = viewBookViewModel,
+                                modifier = Modifier.padding(innerPadding),
+                            )
+                        }
                     }
-                ) {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        bottomBar = { BottomBar(
-                            importEpub = ::importEpub,
-                            showAppBar = showAppBar,
-                            viewBookViewModel = viewBookViewModel,
-                        )},
-                    ) { innerPadding ->
-                        ViewBookScreen(
-                            viewModel = viewBookViewModel,
-                            modifier = Modifier.padding(innerPadding),
-                        )
-                    }
+                } else {
+                    EmptyViewBookScreen(importEpub = ::importEpub)
                 }
             }
         }

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
-import com.justvinny.github.noadsepubreader.LoadingScreen
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
 import com.justvinny.github.noadsepubreader.utils.ComponentPreviews
 
@@ -25,18 +24,14 @@ fun ViewBookScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    if (state.isLoading) {
-        LoadingScreen()
-    } else {
-        ViewBookComponent(
-            modifier = modifier,
-            listState = state.lazyListState,
-            searchTerm = state.searchTerm,
-            matchedResultIndex = state.matchedResultIndex,
-            matchedResultsIndices = state.matchedResultsIndices,
-            contents = state.contents,
-        )
-    }
+    ViewBookComponent(
+        modifier = modifier,
+        listState = state.lazyListState,
+        searchTerm = state.searchTerm,
+        matchedResultIndex = state.matchedResultIndex,
+        matchedResultsIndices = state.matchedResultsIndices,
+        contents = state.contents,
+    )
 }
 
 @Composable
