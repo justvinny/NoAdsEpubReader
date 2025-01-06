@@ -44,12 +44,9 @@ import org.readium.r2.shared.util.asset.Asset
 import org.readium.r2.shared.util.asset.AssetRetriever
 import org.readium.r2.shared.util.getOrElse
 import org.readium.r2.shared.util.http.DefaultHttpClient
-import org.readium.r2.shared.util.toUrl
+import org.readium.r2.shared.util.toAbsoluteUrl
 import org.readium.r2.streamer.PublicationOpener
 import org.readium.r2.streamer.parser.DefaultPublicationParser
-import java.io.File
-import java.io.FileInputStream
-
 const val EPUB_MIME_TYPE = "application/epub+zip"
 const val TAG = "MainActivity"
 
@@ -165,15 +162,9 @@ class MainActivity : ComponentActivity() {
         viewBookViewModel.setLoading(true)
 
         withContext(Dispatchers.IO) {
-            val fileDescriptor = contentResolver.openFileDescriptor(Uri.parse(uriString), "r") ?: return@withContext
-            val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
-            val tempFile = File.createTempFile("temp_epub", ".epub", cacheDir)
-            tempFile.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
-            }
-            val url = tempFile.toUrl()
+            val absoluteUri = Uri.parse(uriString).toAbsoluteUrl() ?: return@withContext
 
-            val asset = assetRetriever.retrieve(url).getOrElse { exception ->
+            val asset = assetRetriever.retrieve(absoluteUri).getOrElse { exception ->
                 Log.e(TAG, "getEpubContent assetRetriever message: ${exception.message} | cause: ${exception.cause}")
             } as? Asset ?: return@withContext
 
@@ -192,8 +183,6 @@ class MainActivity : ComponentActivity() {
             for (link in publication.tableOfContents) {
                 Log.i(TAG, "getEpubContent table of contents: $link")
             }
-
-            tempFile.deleteOnExit()
         }
 
         viewBookViewModel.setLoading(false)
