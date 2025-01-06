@@ -28,6 +28,7 @@ import com.justvinny.github.noadsepubreader.cachedsettings.CachedSettingsReposit
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
 import com.justvinny.github.noadsepubreader.utils.EpubParser
 import com.justvinny.github.noadsepubreader.utils.EpubParser.Companion.toTextualElementStringList
+import com.justvinny.github.noadsepubreader.utils.countdowntimer.ObservableCountdownTimer
 import com.justvinny.github.noadsepubreader.viewbook.EmptyViewBookScreen
 import com.justvinny.github.noadsepubreader.viewbook.ViewBookScreen
 import com.justvinny.github.noadsepubreader.viewbook.ViewBookViewModel
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var cachedSettingsRepository: CachedSettingsRepository
     private lateinit var epubParser: EpubParser
 
-    private val viewBookViewModel = ViewBookViewModel()
+    private val viewBookViewModel = ViewBookViewModel(ObservableCountdownTimer())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

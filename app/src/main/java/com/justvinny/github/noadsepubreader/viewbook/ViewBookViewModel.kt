@@ -1,16 +1,18 @@
 package com.justvinny.github.noadsepubreader.viewbook
 
-import android.os.CountDownTimer
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.justvinny.github.noadsepubreader.Constants
+import com.justvinny.github.noadsepubreader.utils.countdowntimer.ICountdownObserver
+import com.justvinny.github.noadsepubreader.utils.countdowntimer.ObservableCountdownTimer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
-class ViewBookViewModel: ViewModel() {
+class ViewBookViewModel(private val countdownTimer: ObservableCountdownTimer): ViewModel(),
+    ICountdownObserver {
     private val _state = MutableStateFlow(ViewBookState())
     val state = _state
         .stateIn(
@@ -19,15 +21,12 @@ class ViewBookViewModel: ViewModel() {
             initialValue = ViewBookState(),
         )
 
-    private val timer = object : CountDownTimer(
-        Constants.DEFAULT_TIMER_MAX_MS,
-        Constants.DEFAULT_TIMER_INTERVAL_MS,
-    ) {
-        override fun onTick(millisUntilFinished: Long) {}
+    init {
+        countdownTimer.addObserver(this)
+    }
 
-        override fun onFinish() {
-            updateSearchResults()
-        }
+    override fun executeOnFinish() {
+        updateSearchResults()
     }
 
     fun updateContents(contents: List<String>) {
@@ -47,8 +46,8 @@ class ViewBookViewModel: ViewModel() {
             it.copy(searchTerm = searchTerm)
         }
 
-        timer.cancel()
-        timer.start()
+        countdownTimer.cancel()
+        countdownTimer.start()
     }
 
     fun arrowUp() {
