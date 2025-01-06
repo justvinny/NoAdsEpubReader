@@ -1,7 +1,8 @@
 [versions]
 agp = "8.7.3"
 datastore = "1.1.1"
-desugar_jdk_libs = "2.1.4"
+desugarJdkLibs = "2.1.4"
+gradleTestLogger = "4.0.0"
 junitparams = "1.1.1"
 kotlin = "2.0.0"
 coreKtx = "1.10.1"
@@ -23,7 +24,7 @@ turbine = "1.2.0"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
-desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -51,5 +52,6 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-protobuf = { id = "com.google.protobuf", version.ref = "protobuf"}
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
+gradle-test-logger = { id = "com.adarshr.test-logger", version.ref = "gradleTestLogger" }
 

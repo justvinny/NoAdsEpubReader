@@ -33,6 +33,7 @@ class ViewBookViewModelTests {
         viewModel.state.test {
             assertEquals(emptyList<List<String>>(), awaitItem().contents) // Initial State
             assertEquals(expectedList, awaitItem().contents)
+
             expectNoEvents()
         }
     }
@@ -49,6 +50,7 @@ class ViewBookViewModelTests {
         viewModel.state.test {
             assertEquals(false, awaitItem().isLoading) // Initial State
             assertEquals(expected, awaitItem().isLoading)
+
             expectNoEvents()
         }
     }
@@ -65,6 +67,7 @@ class ViewBookViewModelTests {
         viewModel.state.test {
             assertEquals(0, awaitItem().lazyListState.firstVisibleItemIndex) // Initial State
             assertEquals(expected, awaitItem().lazyListState.firstVisibleItemIndex)
+
             expectNoEvents()
         }
     }
@@ -80,8 +83,8 @@ class ViewBookViewModelTests {
         // Assert
         viewModel.state.test {
             assertEquals(expected, awaitItem().matchedResultIndex) // Initial State
-            assertEquals(expected, awaitItem().matchedResultIndex) // Same as initial state
-            expectNoEvents()
+
+            expectNoEvents() // No state changes expected. Would have thrown an exception otherwise
         }
     }
 
@@ -96,8 +99,8 @@ class ViewBookViewModelTests {
         // Assert
         viewModel.state.test {
             assertEquals(expected, awaitItem().matchedResultIndex) // Initial State
-            assertEquals(expected, awaitItem().matchedResultIndex) // Same as initial state
-            expectNoEvents()
+
+            expectNoEvents() // No state changes expected. Would have thrown an exception otherwise
         }
     }
 
