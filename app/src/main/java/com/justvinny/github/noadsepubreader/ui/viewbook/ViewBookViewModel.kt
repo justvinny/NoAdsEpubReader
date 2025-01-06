@@ -2,21 +2,25 @@ package com.justvinny.github.noadsepubreader.ui.viewbook
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.justvinny.github.noadsepubreader.logic.Constants
 import com.justvinny.github.noadsepubreader.logic.countdowntimer.ICountdownObserver
 import com.justvinny.github.noadsepubreader.logic.countdowntimer.ObservableCountdownTimer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
-class ViewBookViewModel(private val countdownTimer: ObservableCountdownTimer): ViewModel(),
+class ViewBookViewModel(
+    private val countdownTimer: ObservableCountdownTimer,
+    scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+): ViewModel(),
     ICountdownObserver {
     private val _state = MutableStateFlow(ViewBookState())
     val state = _state
         .stateIn(
-            scope = viewModelScope,
+            scope = scope,
             started = SharingStarted.WhileSubscribed(Constants.DEFAULT_FLOW_SUBSCRIPTION_TIMEOUT),
             initialValue = ViewBookState(),
         )

@@ -6,7 +6,6 @@ import org.junit.Before
 import org.junit.Test
 
 class ObservableCountdownTimerTest {
-
     private lateinit var countdownTimer: ObservableCountdownTimer
     private val observer: ICountdownObserver = mockk(relaxed = true) // Mock observer
 

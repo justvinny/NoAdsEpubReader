@@ -1,29 +1,22 @@
 package com.justvinny.github.noadsepubreader.ui.viewbook
 
 import app.cash.turbine.test
-import com.justvinny.github.noadsepubreader.ui.viewbook.ViewBookViewModel
 import com.justvinny.github.noadsepubreader.logic.countdowntimer.ObservableCountdownTimer
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 
 class ViewBookViewModelTests {
-
     private lateinit var countdownTimer: ObservableCountdownTimer
     private lateinit var viewModel: ViewBookViewModel
-
-    @Before
-    fun setup() {
-        countdownTimer = mockk(relaxed = true, relaxUnitFun = true)
-        viewModel = ViewBookViewModel(countdownTimer)
-    }
 
     @Test
     fun `updateContents emits correct contents`() = runTest {
         // Arrange
+        setup()
         val expectedList = listOf("Test 1", "Some other text", "Some test")
 
         // Act
@@ -41,6 +34,7 @@ class ViewBookViewModelTests {
     @Test
     fun `setLoading emits correct isLoading state`() = runTest {
         // Arrange
+        setup()
         val expected = true
 
         // Act
@@ -58,6 +52,7 @@ class ViewBookViewModelTests {
     @Test
     fun `updateScrollPosition emits correct scrollPosition state`() = runTest {
         // Arrange
+        setup()
         val expected = 50
 
         // Act
@@ -75,6 +70,7 @@ class ViewBookViewModelTests {
     @Test
     fun `arrowUp emits the same state given matchedResultsIndices is empty`() = runTest {
         // Arrange
+        setup()
         val expected = 0
 
         // Act
@@ -91,6 +87,7 @@ class ViewBookViewModelTests {
     @Test
     fun `arrowDown emits the same state given matchedResultsIndices is empty`() = runTest {
         // Arrange
+        setup()
         val expected = 0
 
         // Act
@@ -107,6 +104,7 @@ class ViewBookViewModelTests {
     @Test
     fun `search emits correct states`() = runTest {
         // Arrange
+        setup()
         val contents = listOf("Expected", "Testing some words expe", "To search expected")
         val firstSearchTerm = "expe"
         val finalSearchTerm = "expected"
@@ -140,6 +138,7 @@ class ViewBookViewModelTests {
     @Test
     fun `executeOnFinish calls updateSearchResults given search matches and emits correct matched indices`() = runTest {
         // Arrange
+        setup()
         val contents = listOf("Expected", "Testing some words expe", "To search expected")
         val searchTerm = "expected"
         val expectedMatchedResultsIndices = listOf(0, 2)
@@ -171,6 +170,7 @@ class ViewBookViewModelTests {
     @Test
     fun `executeOnFinish calls updateSearchResults given search does not match does not update state after`() = runTest {
         // Arrange
+        setup()
         val contents = listOf("Expected", "Testing some words expe", "To search expected")
         val searchTerm = "no match"
 
@@ -198,6 +198,7 @@ class ViewBookViewModelTests {
     @Test
     fun `executeOnFinish calls updateSearchResults given search blank does not update the state`() = runTest {
         // Arrange
+        setup()
         val contents = listOf("Expected", "Testing some words expe", "To search expected")
 
         // Act & Assert
@@ -210,5 +211,10 @@ class ViewBookViewModelTests {
 
             expectNoEvents() // Would have thrown an exception if state didn't stay the same
         }
+    }
+
+    private fun TestScope.setup() {
+        countdownTimer = mockk(relaxed = true, relaxUnitFun = true)
+        viewModel = ViewBookViewModel(countdownTimer = countdownTimer, scope = backgroundScope)
     }
 }
