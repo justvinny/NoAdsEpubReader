@@ -1,11 +1,11 @@
-package com.justvinny.github.noadsepubreader.viewbook
+package com.justvinny.github.noadsepubreader.ui.viewbook
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.justvinny.github.noadsepubreader.Constants
-import com.justvinny.github.noadsepubreader.utils.countdowntimer.ICountdownObserver
-import com.justvinny.github.noadsepubreader.utils.countdowntimer.ObservableCountdownTimer
+import com.justvinny.github.noadsepubreader.logic.Constants
+import com.justvinny.github.noadsepubreader.logic.countdowntimer.ICountdownObserver
+import com.justvinny.github.noadsepubreader.logic.countdowntimer.ObservableCountdownTimer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn

@@ -1,7 +1,8 @@
-package com.justvinny.github.noadsepubreader.viewbook
+package com.justvinny.github.noadsepubreader.ui.viewbook
 
 import app.cash.turbine.test
-import com.justvinny.github.noadsepubreader.utils.countdowntimer.ObservableCountdownTimer
+import com.justvinny.github.noadsepubreader.ui.viewbook.ViewBookViewModel
+import com.justvinny.github.noadsepubreader.logic.countdowntimer.ObservableCountdownTimer
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest

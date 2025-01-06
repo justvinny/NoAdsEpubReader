@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.search
+package com.justvinny.github.noadsepubreader.ui.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.justvinny.github.noadsepubreader.R
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
-import com.justvinny.github.noadsepubreader.utils.ComponentPreviews
+import com.justvinny.github.noadsepubreader.ui.utils.ComponentPreviews
 
 @Composable
 fun SearchComponent(

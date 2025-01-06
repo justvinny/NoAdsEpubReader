@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.viewbook
+package com.justvinny.github.noadsepubreader.ui.viewbook
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +16,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
-import com.justvinny.github.noadsepubreader.utils.ComponentPreviews
+import com.justvinny.github.noadsepubreader.ui.utils.ComponentPreviews
 
 @Composable
 fun ViewBookScreen(

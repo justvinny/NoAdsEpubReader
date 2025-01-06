@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.cachedsettings
+package com.justvinny.github.noadsepubreader.data.cachedsettings
 
 import android.content.Context
 import com.justvinny.github.noadsepubreader.CachedSettings

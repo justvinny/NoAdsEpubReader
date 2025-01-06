@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.bottombar
+package com.justvinny.github.noadsepubreader.ui.bottombar
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,11 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.justvinny.github.noadsepubreader.R
-import com.justvinny.github.noadsepubreader.search.SearchComponent
+import com.justvinny.github.noadsepubreader.ui.search.SearchComponent
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
-import com.justvinny.github.noadsepubreader.utils.ComponentPreviews
-import com.justvinny.github.noadsepubreader.utils.HorizontalFillSpacer
-import com.justvinny.github.noadsepubreader.viewbook.ViewBookViewModel
+import com.justvinny.github.noadsepubreader.ui.utils.ComponentPreviews
+import com.justvinny.github.noadsepubreader.ui.utils.HorizontalFillSpacer
+import com.justvinny.github.noadsepubreader.ui.viewbook.ViewBookViewModel
 
 @Composable
 fun BottomBar(

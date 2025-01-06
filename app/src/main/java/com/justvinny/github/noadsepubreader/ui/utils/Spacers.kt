@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.utils
+package com.justvinny.github.noadsepubreader.ui.utils
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope

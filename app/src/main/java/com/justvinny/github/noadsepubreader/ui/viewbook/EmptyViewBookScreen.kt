@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.viewbook
+package com.justvinny.github.noadsepubreader.ui.viewbook
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.justvinny.github.noadsepubreader.R
-import com.justvinny.github.noadsepubreader.utils.ScreenPreviews
+import com.justvinny.github.noadsepubreader.ui.utils.ScreenPreviews
 
 @Composable
 fun EmptyViewBookScreen(

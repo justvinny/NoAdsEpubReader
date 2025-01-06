@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader
+package com.justvinny.github.noadsepubreader.logic
 
 object Constants {
     const val DEFAULT_FLOW_SUBSCRIPTION_TIMEOUT = 5_000L

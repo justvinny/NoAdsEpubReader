@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.utils.countdowntimer
+package com.justvinny.github.noadsepubreader.logic.countdowntimer
 
 import io.mockk.mockk
 import io.mockk.verify

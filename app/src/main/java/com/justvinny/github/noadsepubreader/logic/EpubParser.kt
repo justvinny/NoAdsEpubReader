@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.utils
+package com.justvinny.github.noadsepubreader.logic
 
 import android.util.Log
 import org.readium.r2.shared.ExperimentalReadiumApi

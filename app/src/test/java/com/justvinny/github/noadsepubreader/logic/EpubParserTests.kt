@@ -1,8 +1,8 @@
 @file:OptIn(ExperimentalReadiumApi::class)
 
-package com.justvinny.github.noadsepubreader.utils
+package com.justvinny.github.noadsepubreader.logic
 
-import com.justvinny.github.noadsepubreader.utils.EpubParser.Companion.toTextualElementStringList
+import com.justvinny.github.noadsepubreader.logic.EpubParser.Companion.toTextualElementStringList
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

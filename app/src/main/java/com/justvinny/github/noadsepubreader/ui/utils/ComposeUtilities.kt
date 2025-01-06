@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.utils
+package com.justvinny.github.noadsepubreader.ui.utils
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.runtime.Composable

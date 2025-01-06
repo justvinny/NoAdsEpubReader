@@ -1,4 +1,4 @@
-package com.justvinny.github.noadsepubreader.viewbook
+package com.justvinny.github.noadsepubreader.ui.viewbook
 
 import androidx.compose.foundation.lazy.LazyListState
 
