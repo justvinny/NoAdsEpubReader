@@ -1,5 +1,6 @@
 package com.justvinny.github.noadsepubreader.viewbook
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -51,7 +52,12 @@ private fun ViewBookComponent(
         }
     }
 
-    LazyColumn(modifier = modifier, state = listState) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp),
+        state = listState,
+    ) {
         itemsIndexed(
             items = contents,
             key = { index, line -> "$index-$line".hashCode() }
