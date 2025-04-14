@@ -62,6 +62,9 @@ dependencies {
     // Other Dependencies
     implementation(libs.readium.streamer)
     implementation(libs.readium.adapter.pdfium)
+    implementation(libs.epub4j.core) {
+        exclude("xmlpull")
+    }
 
     // DataStore
     implementation(libs.protobuf.javalite)

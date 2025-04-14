@@ -28,21 +28,23 @@ import com.justvinny.github.noadsepubreader.data.cachedsettings.CachedSettingsRe
 import com.justvinny.github.noadsepubreader.ui.LoadingScreen
 import com.justvinny.github.noadsepubreader.ui.theme.NoAdsEpubReaderTheme
 import com.justvinny.github.noadsepubreader.logic.EpubParser
-import com.justvinny.github.noadsepubreader.logic.EpubParser.Companion.toTextualElementStringList
+import com.justvinny.github.noadsepubreader.logic.EpubParserV2
 import com.justvinny.github.noadsepubreader.logic.countdowntimer.ObservableCountdownTimer
 import com.justvinny.github.noadsepubreader.ui.viewbook.EmptyViewBookScreen
-import com.justvinny.github.noadsepubreader.ui.viewbook.ViewBookScreen
+import com.justvinny.github.noadsepubreader.ui.viewbook.ViewBookScreenV2
 import com.justvinny.github.noadsepubreader.ui.viewbook.ViewBookViewModel
+import com.justvinny.github.noadsepubreader.ui.viewbook.ViewBookViewModelV2
+import io.documentnode.epub4j.epub.EpubReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.readium.adapter.pdfium.document.PdfiumDocumentFactory
-import org.readium.r2.shared.ExperimentalReadiumApi
 import org.readium.r2.shared.util.AbsoluteUrl
 import org.readium.r2.shared.util.asset.AssetRetriever
 import org.readium.r2.shared.util.http.DefaultHttpClient
 import org.readium.r2.shared.util.toAbsoluteUrl
+import org.readium.r2.shared.util.toUri
 import org.readium.r2.streamer.PublicationOpener
 import org.readium.r2.streamer.parser.DefaultPublicationParser
 
@@ -50,23 +52,27 @@ class MainActivity : ComponentActivity() {
     private lateinit var epubLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var cachedSettingsRepository: CachedSettingsRepository
     private lateinit var epubParser: EpubParser
+    private lateinit var epubParserV2: EpubParserV2
 
     private val viewBookViewModel = ViewBookViewModel(ObservableCountdownTimer())
+    private val viewBookViewModelV2 = ViewBookViewModelV2()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupEpubParser()
+        epubParserV2 = EpubParserV2(EpubReader())
         epubLauncher = getEpubContent()
         cachedSettingsRepository = CachedSettingsRepository(applicationContext)
 
-        lifecycleScope.launch {
-            useCachedDataIfAvailable()
-        }
+        // TODO Needs to be updated due to refactor
+//        lifecycleScope.launch {
+//            useCachedDataIfAvailable()
+//        }
 
         setContent {
-            val viewBookState by viewBookViewModel.state.collectAsState()
-            val hasBookToShow = viewBookState.contents.isNotEmpty()
+            val viewBookState by viewBookViewModelV2.state.collectAsState()
+            val hasBookToShow = viewBookState.current != null
             var showAppBar by rememberSaveable { mutableStateOf(true) }
 
             NoAdsEpubReaderTheme {
@@ -90,10 +96,7 @@ class MainActivity : ComponentActivity() {
                             )
                             },
                         ) { innerPadding ->
-                            ViewBookScreen(
-                                viewModel = viewBookViewModel,
-                                modifier = Modifier.padding(innerPadding),
-                            )
+                            ViewBookScreenV2(Modifier.padding(innerPadding), viewBookViewModelV2)
                         }
                     }
                 } else {
@@ -164,17 +167,16 @@ class MainActivity : ComponentActivity() {
         viewBookViewModel.updateScrollPosition(cachedSettings.lastScrollIndex)
     }
 
-    @OptIn(ExperimentalReadiumApi::class)
     private suspend fun openEpub(absoluteUrl: AbsoluteUrl) {
         withContext(Dispatchers.IO) {
-            viewBookViewModel.setLoading(true)
-            epubParser
-                .parseEpubElements(absoluteUrl)
-                .toTextualElementStringList()
-                .also { contents ->
-                    viewBookViewModel.updateContents(contents)
+            viewBookViewModelV2.updateCachedDirPath(cacheDir.absolutePath)
+            viewBookViewModelV2.setLoading(true)
+            contentResolver.openInputStream(absoluteUrl.toUri())?.use { inputStream ->
+                epubParserV2.parse(inputStream, cacheDir).also { book ->
+                    viewBookViewModelV2.updateContents(book)
                 }
-            viewBookViewModel.setLoading(false)
+            }
+            viewBookViewModelV2.setLoading(false)
         }
     }
 }
