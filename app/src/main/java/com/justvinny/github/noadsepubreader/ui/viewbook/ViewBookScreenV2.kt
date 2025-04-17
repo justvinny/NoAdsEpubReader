@@ -1,5 +1,6 @@
 package com.justvinny.github.noadsepubreader.ui.viewbook
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.util.Log
@@ -30,7 +31,7 @@ fun ViewBookScreenV2(
 ) {
     val state by viewModelV2.state.collectAsState()
     val bgColor by rememberUpdatedState(MaterialTheme.colorScheme.background.toCssRgb())
-    val onBgColor by rememberUpdatedState(MaterialTheme.colorScheme.onBackground.toCssRgb())
+    val fontColor by rememberUpdatedState(MaterialTheme.colorScheme.onBackground.toCssRgb())
 
     AndroidView(factory = {
         WebView(it).apply {
@@ -40,8 +41,13 @@ fun ViewBookScreenV2(
             )
         }
     }, update = { webView ->
+        // Should not be an issue enabling JS as we just need it for internal scrolling for local HTML files
+        webView.settings.javaScriptEnabled = true
         webView.settings.allowFileAccess = true
+        webView.settings.allowContentAccess = false
         webView.webViewClient = object : WebViewClient() {
+            var pendingAnchor: String? = null
+
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest
@@ -49,7 +55,15 @@ fun ViewBookScreenV2(
                 val url = request.url.toString()
 
                 if (url.startsWith("file://")) { // This is an internal EPUB link
-                    view?.loadUrl(url)
+                    val splitUrl = url.split("#")
+                    pendingAnchor = splitUrl.getOrNull(1)
+
+                    webView.loadHtmlFromFile(
+                        cachedDirPath = state.cachedDirPath,
+                        url = splitUrl.first(),
+                        bgColor = bgColor,
+                        fontColor = fontColor,
+                    )
                 } else { // External links should be handled outside our app by an actual browser.
                     try {
                         view?.context?.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
@@ -61,22 +75,55 @@ fun ViewBookScreenV2(
 
                 return true
             }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                pendingAnchor?.let { anchor ->
+                    view?.evaluateJavascript(
+                        "document.getElementById('$anchor')?.scrollIntoView();",
+                        null
+                    )
+                    pendingAnchor = null
+                }
+            }
         }
 
-        state.current?.href?.also { href ->
-            val cachedFile = File(state.cachedDirPath, "$CACHED_DIR_NAME/$href")
-            webView.loadDataWithBaseURL(
-                "file://${cachedFile.parentFile?.absolutePath}/",
-                injectResponsiveStyle(cachedFile.readText(), bgColor, onBgColor),
-                Constants.HTML_MIME_TYPE,
-                Constants.UTF_8_ENCODING,
-                null,
-            )
-        }
+        webView.loadHtmlFromFile(
+            cachedDirPath = state.cachedDirPath,
+            url = state.current?.href.orEmpty(),
+            bgColor = bgColor,
+            fontColor = fontColor,
+        )
     }, modifier = modifier)
 }
 
-fun Color.toCssRgb(): String {
+private fun WebView.loadHtmlFromFile(
+    cachedDirPath: String,
+    url: String,
+    bgColor: String,
+    fontColor: String,
+) {
+    if (url.isEmpty()) {
+        return
+    }
+
+    val cachedFilePath = if (url.startsWith("file://")) {
+        url.replaceFirst("file://", "")
+    } else {
+        "$cachedDirPath/$CACHED_DIR_NAME/$url"
+    }
+
+    val cachedFile = File(cachedFilePath)
+    loadDataWithBaseURL(
+        "file://${cachedFile.parentFile?.absolutePath}/",
+        injectResponsiveStyle(cachedFile.readText(), bgColor, fontColor),
+        Constants.HTML_MIME_TYPE,
+        Constants.UTF_8_ENCODING,
+        null,
+    )
+}
+
+private fun Color.toCssRgb(): String {
     val r = (red.coerceIn(0f, 1f) * 255).toInt()
     val g = (green.coerceIn(0f, 1f) * 255).toInt()
     val b = (blue.coerceIn(0f, 1f) * 255).toInt()

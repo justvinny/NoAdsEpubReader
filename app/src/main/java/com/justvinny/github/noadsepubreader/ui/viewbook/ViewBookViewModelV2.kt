@@ -43,10 +43,6 @@ class ViewBookViewModelV2(
             )
         }
 
-        for (resource in book.resources.all) {
-            println(resource)
-        }
-
         _state.update {
             it.copy(contentsV2 = finalMapped, current = finalMapped.firstOrNull())
         }
